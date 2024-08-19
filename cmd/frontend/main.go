@@ -3,5 +3,12 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println("Yosemite Frontend Server (Tunnel View) v0.0.0")
+	// ANSI color codes
+	const (
+		RESET = "\033[0m"
+		GREEN = "\033[32m"
+		BLUE  = "\033[34m"
+		GREY  = "\033[90m"
+	)
+	fmt.Println(GREEN + "Yosemite" + RESET + " Frontend Server" + BLUE + " (Tunnel View)" + GREY + " v0.0.0" + RESET)
 }
