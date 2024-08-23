@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 )
 
 // Helper function to handle responses
@@ -16,8 +16,7 @@ func respondJSON(w http.ResponseWriter, status int, payload interface{}) {
 
 // Generalized handler for fetching an item by ID
 func getItemByID(w http.ResponseWriter, r *http.Request, idKey string, itemName string) {
-	vars := mux.Vars(r)
-	id := vars[idKey]
+	id := chi.URLParam(r, idKey)
 	response := map[string]string{idKey: id, "title": itemName}
 	respondJSON(w, http.StatusOK, response)
 }
@@ -87,9 +86,8 @@ func getPanelHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getPanelImageHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	panelID := vars["panel_id"]
-	width := vars["width"]
+	panelID := chi.URLParam(r, "panel_id")
+	width := chi.URLParam(r, "width")
 	response := map[string]string{"panel_id": panelID, "title": "Panel Title", "width": width}
 	respondJSON(w, http.StatusOK, response)
 }

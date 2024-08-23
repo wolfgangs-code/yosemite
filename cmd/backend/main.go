@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 )
 
 func main() {
@@ -25,7 +25,7 @@ func main() {
 	}
 
 	// Create router
-	r := mux.NewRouter()
+	r := chi.NewRouter()
 	defineRoutes(r)
 
 	// Start the server

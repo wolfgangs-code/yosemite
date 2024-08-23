@@ -1,58 +1,62 @@
 package main
 
-// ? See handler rules in handler.go
-
 import (
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 )
 
-// ? Router functions
-func defineRoutes(router *mux.Router) {
+// Router functions
+func defineRoutes(router chi.Router) {
 	// API routes
-	apiRouter := router.PathPrefix("/api/v1").Subrouter()
+	apiRouter := chi.NewRouter()
 
 	// Health check and endpoints routes
-	router.HandleFunc("/api", healthCheckHandler).Methods("GET")
-	router.HandleFunc("/api/v1", endpointsHandler).Methods("GET")
+	router.Get("/api", healthCheckHandler)
+	router.Get("/api/v1", endpointsHandler)
 
 	// Volume routes
-	volumeRouter := apiRouter.PathPrefix("/volumes").Subrouter()
-	configureVolumeRoutes(volumeRouter)
+	apiRouter.Route("/volumes", func(r chi.Router) {
+		configureVolumeRoutes(r)
+	})
+
+	router.Mount("/api/v1", apiRouter)
 }
 
-// ! Configure volume routes
-func configureVolumeRoutes(router *mux.Router) {
-	router.HandleFunc("", listVolumesHandler).Methods("GET")
-	router.HandleFunc("/{volume_id:[0-9]+}", getVolumeHandler).Methods("GET")
+// Configure volume routes
+func configureVolumeRoutes(router chi.Router) {
+	router.Get("/", listVolumesHandler)
+	router.Get("/{volume_id:[0-9]+}", getVolumeHandler)
 
 	// Chapter routes within volumes
-	chapterRouter := router.PathPrefix("/{volume_id:[0-9]+}/chapters").Subrouter()
-	configureChapterRoutes(chapterRouter)
+	router.Route("/{volume_id:[0-9]+}/chapters", func(r chi.Router) {
+		configureChapterRoutes(r)
+	})
 }
 
-// ! Configure chapter routes
-func configureChapterRoutes(router *mux.Router) {
-	router.HandleFunc("", listChaptersHandler).Methods("GET")
-	router.HandleFunc("/{chapter_id:[0-9]+}", getChapterHandler).Methods("GET")
+// Configure chapter routes
+func configureChapterRoutes(router chi.Router) {
+	router.Get("/", listChaptersHandler)
+	router.Get("/{chapter_id:[0-9]+}", getChapterHandler)
 
 	// Page routes within chapters
-	pageRouter := router.PathPrefix("/{chapter_id:[0-9]+}/pages").Subrouter()
-	configurePageRoutes(pageRouter)
+	router.Route("/{chapter_id:[0-9]+}/pages", func(r chi.Router) {
+		configurePageRoutes(r)
+	})
 }
 
-// ! Configure page routes
-func configurePageRoutes(router *mux.Router) {
-	router.HandleFunc("", listPagesHandler).Methods("GET")
-	router.HandleFunc("/{page_id:[0-9]+}", getPageHandler).Methods("GET")
+// Configure page routes
+func configurePageRoutes(router chi.Router) {
+	router.Get("/", listPagesHandler)
+	router.Get("/{page_id:[0-9]+}", getPageHandler)
 
 	// Panel routes within pages
-	panelRouter := router.PathPrefix("/{page_id:[0-9]+}/panels").Subrouter()
-	configurePanelRoutes(panelRouter)
+	router.Route("/{page_id:[0-9]+}/panels", func(r chi.Router) {
+		configurePanelRoutes(r)
+	})
 }
 
-// ! Configure panel routes
-func configurePanelRoutes(router *mux.Router) {
-	router.HandleFunc("", listPanelsHandler).Methods("GET")
-	router.HandleFunc("/{panel_id:[0-9]+}", getPanelHandler).Methods("GET")
-	router.HandleFunc("/{panel_id:[0-9]+}/{width:[0-9]+}px", getPanelImageHandler).Methods("GET")
+// Configure panel routes
+func configurePanelRoutes(router chi.Router) {
+	router.Get("/", listPanelsHandler)
+	router.Get("/{panel_id:[0-9]+}", getPanelHandler)
+	router.Get("/{panel_id:[0-9]+}/{width:[0-9]+}px", getPanelImageHandler)
 }
